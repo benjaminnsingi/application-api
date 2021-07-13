@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints\Length;
 
 /**
  * @ORM\Entity(repositoryClass=PostRepository::class)
@@ -13,7 +14,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     normalizationContext: ['groups' => ['read:collection']],
     denormalizationContext: ['groups' => ['write:Post']],
-    collectionOperations: ['get'],
+    collectionOperations: [
+        'get',
+        'post' => [
+            'validation_groups' => [Post::class, 'validationGroups']
+        ]
+    ],
     itemOperations: [
         'put',
         'delete',
@@ -35,7 +41,10 @@ class Post
     /**
      * @ORM\Column(type="string", length=255)
      */
-    #[Groups(['read:collection', 'write:Post'])]
+    #[
+        Groups(['read:collection', 'write:Post']),
+        Length(min:5, groups: ['create:Post'])
+    ]
     private string $title;
 
     /**
@@ -62,10 +71,15 @@ class Post
     private \DateTimeInterface $updatedAt;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="posts")
+     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="posts", cascade={"persist"})
      */
     #[Groups(['read:item', 'write:Post'])]
     private Category $category;
+
+    public static function validationGroups(self $post): array
+    {
+        return ['create:Post'];
+    }
 
     public function __construct () {
         $this->createdAt = new \DateTime();

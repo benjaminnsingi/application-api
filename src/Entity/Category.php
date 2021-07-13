@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=CategoryRepository::class)
  */
-#[ApiResource]
+#[ApiResource()]
 class Category
 {
     /**
@@ -26,7 +26,7 @@ class Category
     /**
      * @ORM\Column(type="string", length=255)
      */
-    #[Groups('read:Post')]
+    #[Groups(['read:Post', 'write:Post'])]
     private string $name;
 
     /**
