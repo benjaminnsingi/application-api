@@ -3,20 +3,20 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ArticleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=ArticleRepository::class)
  */
+#[ApiResource]
 class Article
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
+     use ResourceId;
+
+     use Timestapable;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -32,6 +32,11 @@ class Article
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="articles")
      */
     private User $author;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
