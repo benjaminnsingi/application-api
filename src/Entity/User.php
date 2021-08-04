@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,8 +13,23 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ApiResource(
+ *     collectionOperations={
+ *        "get" = {
+ *           "normalization_context" = {"groups"={"user_read"}}
+ *        },
+ *        "post"
+ *     },
+ *     itemOperations={
+ *        "get"={
+ *          "normalization_context"={"groups"={"user_details_read"}}
+ *       },
+ *       "put",
+ *       "patch",
+ *       "delete"
+ *     }
+ * )
  */
-#[ApiResource]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
 
@@ -23,6 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"user_read", "user_details_read", "article_details_read"})
      */
     private string $email;
 
@@ -39,6 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="author")
+     * @Groups({"user_details_read"})
      */
     private Collection $articles;
 
@@ -153,11 +171,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeArticle(Article $article): self
     {
-        if ($this->articles->removeElement($article)) {
-            // set the owning side to null (unless already changed)
-            if ($article->getAuthor() === $this) {
-                $article->setAuthor(null);
-            }
+        if ($this->articles->contains($article)) {
+            $this->articles->removeElement($article);
         }
 
         return $this;

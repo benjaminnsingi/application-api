@@ -4,14 +4,30 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=ArticleRepository::class)
+ * @ApiResource(
+ *     collectionOperations={
+ *        "get" = {
+ *           "normalization_context" = {"groups"={"article_read"}}
+ *        },
+ *        "post"
+ *     },
+ *     itemOperations={
+ *        "get"={
+ *          "normalization_context"={"groups"={"article_details_read"}}
+ *       },
+ *       "put",
+ *       "patch",
+ *       "delete"
+ *     }
+ * )
  */
-#[ApiResource]
 class Article
 {
      use ResourceId;
@@ -20,22 +36,25 @@ class Article
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"article_read","user_details_read", "article_details_read"})
      */
     private string $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"article_read","user_details_read", "article_details_read"})
      */
     private string $content;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="articles")
+     * @Groups({"article_details_read"})
      */
     private User $author;
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTime();
     }
 
     public function getId(): ?int
