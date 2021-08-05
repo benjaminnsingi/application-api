@@ -30,6 +30,12 @@ class AppFixtures extends Fixture
            $user->setEmail($fake->email)
                ->setPassword($passHash);
 
+           if ($u % 3 === 0) {
+               $user->setStatus(false)
+                    ->setAge(23)
+                   ;
+           }
+
            $manager->persist($user);
 
            for ($a = 0; $a < random_int(5, 15); $a++) {

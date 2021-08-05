@@ -8,6 +8,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Controller\ArticleUpdatedAt;
 
 /**
  * @ORM\Entity(repositoryClass=ArticleRepository::class)
@@ -24,7 +25,12 @@ use Doctrine\ORM\Mapping as ORM;
  *       },
  *       "put",
  *       "patch",
- *       "delete"
+ *       "delete",
+ *       "put_updated_at" = {
+ *       "method"= "PUT",
+ *       "path" = "/articles/{id}/updated_at",
+ *       "controller" = ArticleUpdatedAt::class,
+          },
  *     }
  * )
  */
